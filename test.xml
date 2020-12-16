@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<idmef:IDMEF-Message xmlns:idmef="http://iana.org/idmef">
+<idmef:Alert messageid="6567fa23-a5f6-4d7b-a202-5003b6fd8c15">
+<idmef:Analyzer analyzerid="prelude-va localdomain"/>
+<idmef:CreateTime ntpstamp="0xe2551126.0x7d2f1a9f">2020-04-30T08:56:06+00:00</idmef:CreateTime>
+<idmef:DetectTime ntpstamp="0xe2551126.0x7d2f1a9f">2020-04-30T08:56:06+00:00</idmef:DetectTime>
+<idmef:AnalyzerTime ntpstamp="0xe2551126.0x7d2f1a9f">2020-04-30T08:56:06+00:00</idmef:AnalyzerTime>
+<idmef:Target decoy="unknown">
+<idmef:Node category="unknown">
+<idmef:name>prelude-va localdomain</idmef:name>
+</idmef:Node>
+<idmef:Process>
+<idmef:name>whoami exe</idmef:name>
+</idmef:Process>
+</idmef:Target>
+<idmef:Classification text="Who am I ?"/>
+<idmef:Assessment>
+<idmef:Impact severity="high" type="other"/>
+</idmef:Assessment>
+<idmef:AdditionalData meaning="type" type="string">
+<idmef:string>rtlogs</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="agent" type="string">
+<idmef:string>{"agentid"=&gt;"7808295f-acff-4e10-95fa-8f7d686b38f4",."osversion"=&gt;"10.0.14393",."hostname"=&gt;"WIN-OI66BE6EDVG",."domain"=&gt;"WORKGROUP",."osproducttype"=&gt;"Windows Server.2016.Standard",."ipaddress"=&gt;"92.222.9.62"}</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="path" type="string">
+<idmef:string>/home/prelude/harfanglab2.log</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="log_type" type="string">
+<idmef:string>alert</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="alert_unique_id" type="string">
+<idmef:string>ea00f106-19e9-42b8-96d0-0c0f66f61d7e</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="status" type="string">
+<idmef:string>new</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="execution" type="integer">
+<idmef:integer>0</idmef:integer>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="@event_create_date" type="string">
+<idmef:string>2020-04-30T08:56:06.280Z</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="tags" type="string">
+<idmef:string>["attack discovery",."attack t1033",."car.2016-03-001"]</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="alert_subtype" type="string">
+<idmef:string>process</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="rule_name" type="string">
+<idmef:string>Whoami Execution</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="rule_id" type="string">
+<idmef:string>e28a5a99-da44-436d-b7a0-2afc20a5f413</idmef:string></idmef:AdditionalData>
+<idmef:AdditionalData meaning="@version" type="string">
+<idmef:string>1</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="alert_type" type="string">
+<idmef:string>sigma</idmef:string>
+</idmef:AdditionalData>
+<idmef:AdditionalData meaning="alert_time" type="string">
+<idmef:string>2020-04-30T08:56:06.280</idmef:string>
+</idmef:AdditionalData>
+</idmef:Alert>
+</idmef:IDMEF-Message>

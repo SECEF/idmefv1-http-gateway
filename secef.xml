@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SECEF Web Gateway</short>
+  <description>IDMEF to Prelude web gateway.</description>
+  <port protocol="tcp" port="3128"/>
+</service>

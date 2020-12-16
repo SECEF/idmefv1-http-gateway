@@ -1,0 +1,18 @@
+[Unit]
+Description=SECEF Web Gateway
+After=syslog.service
+After=rsyslog.service
+After=network.target
+Before=httpd.service
+BindsTo=httpd.service
+
+[Install]
+WantedBy=multi-user.target httpd.service
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/secef
+Type=simple
+User=apache
+ExecStart=/usr/local/secef/secef.fcgi $OPTIONS
+Restart=on-failure
+
