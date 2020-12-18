@@ -113,19 +113,21 @@ By default, the gateway will listen for IDMEF messages on port 3128.
 You can customize the listening port by editing ``secef.httpd.conf``.
 You must edit both the value inside the ``Listen`` directive and the
 virtual host configuration for the change to take effect.
+Do not forget to restart the HTTP server after the change.
 
 In addition, the gateway fully supports TLS. However, it is disabled by default.
 You can set the ``SSLEngine`` directive to ``on`` inside the virtual host
 definition in ``secef.httpd.conf`` to enable TLS.
 You may also need to tweak other TLS-related settings inside the file
 to match your environment.
+Do not forget to restart the HTTP server after the change.
 
 
 Usage
 =====
 
-Start/stop the gateway
-----------------------
+Start the gateway
+-----------------
 
 To start the gateway, execute the following command:
 
