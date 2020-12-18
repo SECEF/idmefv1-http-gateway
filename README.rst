@@ -12,8 +12,7 @@ This module has been tested with CentOS 7.x.
 
       sudo setenforce 0
 
-  Note: you may want to disable SELinux permanently by editing ``/etc/selinux/config``
-        and rebooting.
+  *Note*: you may want to disable SELinux permanently by editing ``/etc/selinux/config``
 
 * Install dependencies:
 
@@ -28,7 +27,7 @@ This module has been tested with CentOS 7.x.
 
       sudo prelude-admin register "secef" "idmef:w" <manager address> --uid apache --gid apache
 
-  Note: this step is mandatory, unless you plan to run the gateway in dry-run mode only (see usage below).
+  *Note*: this step is mandatory, unless you plan to run the gateway in dry-run mode only (see usage below).
   See also https://www.prelude-siem.org/projects/prelude/wiki/InstallingAgentRegistration for
   more information about the registration process.
 
@@ -38,14 +37,14 @@ This module has been tested with CentOS 7.x.
 
       sudo usermod -a -G prelude apache
 
-  Note: this step is mandatory, unless you plan to run the gateway in dry-run mode only (see usage below).
+  *Note*: this step is mandatory, unless you plan to run the gateway in dry-run mode only (see usage below).
 
 * Create the ``/usr/local/secef/`` folder on your machine and copy all the files in this repository
   into that folder.
 
 * Install the gateway:
 
-  Note: all files should initially lie inside /usr/local/secef (see above).
+  *Note*: all files should initially lie inside /usr/local/secef (see above).
 
   ..  sourcecode:: sh
 
