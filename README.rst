@@ -6,90 +6,67 @@ Installation
 
 This module has been tested with CentOS 7.x.
 
-Disable SELinux:
+* Disable SELinux:
 
-..  sourcecode:: sh
+  ..  sourcecode:: sh
 
-    sudo setenforce 0
+      sudo setenforce 0
 
-..  note::
+  Note: you may want to disable SELinux permanently by editing ``/etc/selinux/config``
+        and rebooting.
 
-    You may want to disable SELinux permanently by editing :file:`/etc/selinux/config`
-    and rebooting.
+* Install dependencies:
 
-Install dependencies:
+  ..  sourcecode:: sh
 
-..  sourcecode:: sh
+      sudo yum install -y epel-release
+      sudo yum install -y httpd mod_ssl prelude-tools python-flup python-lxml python-prelude
 
-    sudo yum install -y epel-release
-    sudo yum install -y httpd mod_ssl prelude-tools python-flup python-lxml python-prelude
+* Register the ``secef`` profile with Prelude SIEM's manager:
 
-Register the "secef" profile with Prelude SIEM's manager:
+  ..  sourcecode:: sh
 
-..  note::
+      sudo prelude-admin register "secef" "idmef:w" <manager address> --uid apache --gid apache
 
-    This step is required, unless the gateway will only be run in dry-run mode (see usage below).
-    See also https://www.prelude-siem.org/projects/prelude/wiki/InstallingAgentRegistration for
-    more information about the registration process.
+  Note: this step is mandatory, unless you plan to run the gateway in dry-run mode only (see usage below).
+  See also https://www.prelude-siem.org/projects/prelude/wiki/InstallingAgentRegistration for
+  more information about the registration process.
 
-..  sourcecode:: sh
+* Give access to the gateway's profile to apache:
 
-    sudo prelude-admin register "secef" "idmef:w" <manager address> --uid apache --gid apache
+  ..  sourcecode:: sh
 
-Give access to the gateway's profile to apache:
+      sudo usermod -a -G prelude apache
 
-..  note::
+  Note: this step is mandatory, unless you plan to run the gateway in dry-run mode only (see usage below).
 
-    This step is required, unless the gateway will only be run in dry-run mode (see usage below).
+* Create the ``/usr/local/secef/`` folder on your machine and copy all the files in this repository
+  into that folder.
 
-..  sourcecode:: sh
+* Install the gateway:
 
-    sudo usermod -a -G prelude apache
+  Note: all files should initially lie inside /usr/local/secef (see above).
 
-Create :file:`/usr/local/secef/` and copy all the files into that folder.
+  ..  sourcecode:: sh
 
-Install the gateway:
+      sudo ln -s /usr/local/secef/secef.tmpfiles.conf /etc/tmpfiles.d/
+      sudo ln -s /usr/local/secef/secef.httpd.conf    /etc/httpd/conf.d/
+      sudo ln -s /usr/local/secef/secef.service       /etc/systemd/system/
+      sudo ln -s /usr/local/secef/secef.xml           /etc/firewalld/services/
+      systemd-tmpfiles --create /etc/tmpfiles.d/secef.tmpfiles.conf
+      sudo systemctl daemon-reload
+      sudo systemctl enable secef.service
+      sudo systemctl restart httpd
+      sudo systemctl reload firewalld
+      sudo firewall-cmd --add-service=secef --permanent
+      sudo firewall-cmd --add-service=secef
 
-..  note::
 
-    All files should initially lie inside /usr/local/secef
-
-..  sourcecode:: sh
-
-    sudo ln -s /usr/local/secef/secef.tmpfiles.conf /etc/tmpfiles.d/
-    sudo ln -s /usr/local/secef/secef.httpd.conf    /etc/httpd/conf.d/
-    sudo ln -s /usr/local/secef/secef.service       /etc/systemd/system/
-    sudo ln -s /usr/local/secef/secef.xml           /etc/firewalld/services/
-    systemd-tmpfiles --create /etc/tmpfiles.d/secef.tmpfiles.conf
-    sudo systemctl daemon-reload
-    sudo systemctl enable secef.service
-    sudo systemctl restart httpd
-    sudo systemctl reload firewalld
-    sudo firewall-cmd --add-service=secef --permanent
-    sudo firewall-cmd --add-service=secef
-
-Usage
-=====
-
-The gateway accepts messages whose content type is either ``application/xml``
-or ``text/xml``. Any other content type will be rejected.
-
-To use the gateway, just send your (XML-formatted) IDMEF messages to the VA,
-on TCP port 3128, eg.
-
-..  sourcecode:: sh
-
-    curl -XPOST -d @./test.xml -H 'Content-Type: text/xml' http://web-gw.example.com:3128/
-
-..  warning::
-
-    DTD validation is disabled by default.
-    When enabled, it uses an old DTD where the XML namespace for IDMEF
-    is defined as ``urn:iana:xml:ns:idmef``. You may want to change it
-    if you plan to use this gateway in real life scenarios.
+Configuration
+=============
 
 Various options influence how the gateway behaves.
-You can set these options by creating the file :file:`/etc/sysconfig/secef`
+You can set these options by creating the file ``/etc/sysconfig/secef``
 with content similar to this one:
 
 ..  sourcecode:: sh
@@ -103,14 +80,73 @@ The following options are currently supported:
 
 - ``--dry-run`` prevents the gateway from actually loading the Prelude SIEM
   profile and forwarding IDMEF messages to Prelude SIEM.
+
   This option can be used together with ``--debug`` to log the messages
   without actually forwarding them.
 
 - ``--profile`` controls the name of the Prelude SIEM profile to use
-  to forward alerts to Prelude SIEM. Defaults to ``secef``.
+  to forward alerts to Prelude SIEM.
+
   The profile must be registered with Prelude SIEM's manager beforehand.
   See the installation instructions for more information.
 
+  Defaults to ``secef``.
+
 - ``--sock`` indicates the full path to the socket that will be created
   by the gateway to communicate with the HTTP server using the WSGI
-  protocol. Defaults to :file:`/var/run/httpd/secef/secef.sock`.
+  protocol.
+
+  Defaults to ``/var/run/httpd/secef/secef.sock``.
+
+- ``--valid-dtd`` turns on DTD validation on the IDMEF messages.
+
+  Since the original IDMEF RFC never became a proposed standard,
+  there is no official document type associated with IDMEF messages.
+
+  This application assumes that:
+
+  * ``-//IETF//DTD RFC XXXX IDMEF v1.0//EN`` is used as the document type
+  * ``urn:iana:xml:ns:idmef`` is used as the XML namespace.
+
+  DTD validation is disabled by default for compatibility reasons.
+
+By default, the gateway will listen for IDMEF messages on port 3128.
+You can customize the listening port by editing ``secef.httpd.conf``.
+You must edit both the value inside the ``Listen`` directive and the
+virtual host configuration for the change to take effect.
+
+In addition, the gateway fully supports TLS. However, it is disabled by default.
+You can set the ``SSLEngine`` directive to ``on`` inside the virtual host
+definition in ``secef.httpd.conf`` to enable TLS.
+You may also need to tweak other TLS-related settings inside the file
+to match your environment.
+
+
+Usage
+=====
+
+Start/stop the gateway
+----------------------
+
+To start the gateway, execute the following command:
+
+..  sourcecode:: sh
+
+    systemctl start httpd secef
+
+Send a test IDMEF message
+-------------------------
+
+The gateway accepts messages whose content type is either ``application/xml``
+or ``text/xml``. Any other content type will be rejected.
+
+To use the gateway, just send your (XML-formatted) IDMEF messages to the gateway's
+listening port (3128 by default), eg.
+
+..  sourcecode:: sh
+
+    curl -XPOST -d @./test.xml -H 'Content-Type: text/xml' http://web-gw.example.com:3128/
+
+You can then use Prelude SIEM to check that the message was properly forwarded.
+You may also check the web gateway's logs with ``journalctl`` if debugging logs
+have been enabled in the gateway's options.
