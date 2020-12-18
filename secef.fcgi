@@ -21,6 +21,8 @@ _CONTENT_TYPES = (b'text/xml', b'application/text')
 
 client = None
 logger = logging.getLogger()
+gateway = None
+
 
 class DTDResolver(etree.Resolver):
     def __init__(self, *args, **kwargs):
@@ -34,15 +36,12 @@ class DTDResolver(etree.Resolver):
 
 
 class Gateway(object):
-    _parser = None
+    def __init__(self, validate_dtd=False):
+        parser = etree.XMLParser(load_dtd=validate_dtd)
+        parser.resolvers.add(DTDResolver())
+        self._parser = parser
 
-    def __init__(self):
-        if Gateway._parser is None:
-            parser = etree.XMLParser(load_dtd=False)
-            parser.resolvers.add(DTDResolver())
-            Gateway._parser = parser
-
-    def convert(self, body):
+    def forward(self, body):
         roots = ('Alert', 'Heartbeat')
         ad_types = ('boolean', 'byte', 'character', 'date-time', 'integer',
                     'ntpstamp', 'portlist', 'real', 'string', 'byte-string',
@@ -55,7 +54,7 @@ class Gateway(object):
         special_content.update(dict.fromkeys(ad_types, 'data'))
         ignored_attrs = ('ntpstamp', )
 
-        xml = etree.fromstring(body, parser=Gateway._parser)
+        xml = etree.fromstring(body, parser=self._parser)
         stack = []
         indices = []
         idmef = None
@@ -148,13 +147,15 @@ class Gateway(object):
 
 
 def app(environ, start_response):
+    global gateway
+
     if environ.get('CONTENT_TYPE') not in _CONTENT_TYPES:
         start_response(b'415 Unsupported Media Type', [(b'Content-Type', b'text/plain')])
         return(b'Wrong media type\n')
 
     try:
         remote = cgi.FieldStorage(environ['wsgi.input'], environ=environ)
-        Gateway().convert(remote.value)
+        gateway.forward(remote.value)
         start_response(b'200 OK', [(b'Content-Type', b'text/plain')])
         return(b'OK\n')
     except Exception as e:
@@ -165,13 +166,14 @@ def app(environ, start_response):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="IDMEF to Prelude web gateway")
+    parser.add_argument('--debug', help="Enable debugging logs.", default=False, action='store_true')
+    parser.add_argument('--dry-run', '-n', help="Do not actually forward the messages.", dest='dry_run', action='store_true')
     parser.add_argument('--profile', help="Prelude profile to use.", default="secef")
     parser.add_argument('--sock', '-s', help="Path to the gateway's UNIX socket.", default=FCGI_SOCK)
-    parser.add_argument('--debug', help="Enable debugging logs.", default=False, action='store_true')
-    parser.add_argument('--dry-run', '-n', help="Do not actually forward the messages.",
-                        dest='dry_run', action='store_true')
+    parser.add_argument('--valid-dtd', help="Perform DTD validation.", dest='valid_dtd', action='store_true')
     args = parser.parse_args()
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if args.debug else logging.INFO)
+    gateway = Gateway(validate_dtd=bool(args.valid_dtd))
 
     if not args.dry_run:
         client = prelude.ClientEasy(args.profile, prelude.ClientEasy.PERMISSION_IDMEF_WRITE,
