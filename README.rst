@@ -1,6 +1,14 @@
 SECEF web gateway (push mode)
 #############################
 
+This repository contains a web application that processes security alerts encoded using
+IDMEFv1 XML messages and forwards them to a Prelude SIEM manager.
+
+For more information about the Intrusion Detection Message Exchange Format (IDMEF) version 1,
+see https://tools.ietf.org/html/rfc4765.
+
+For more information about Prelude SIEM, see https://www.prelude-siem.org/.
+
 Installation
 ============
 
